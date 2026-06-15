@@ -2,7 +2,7 @@
 
 import { useCartStore } from "@/lib/client-store"
 import { motion } from "framer-motion"
-import PaymentForm from "./payment-form2"
+import PaymentForm from "./payment-form"
 
 
 export default function Payment() {

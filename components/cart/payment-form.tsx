@@ -6,18 +6,19 @@ import { useEffect, useState } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { createOrder } from "@/server/actions/create-order";
 import { toast } from "sonner";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { OrderSchema, zOrderSchema } from "@/types/order-schema";
 import { WILAYA_SHIPPING_RATES } from "@/lib/shipping-willaya";
+
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Input } from "../ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { OrderSchema, zOrderSchema } from "@/types/order-schema";
 
 import {
   Select,
@@ -27,12 +28,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Field } from "@/components/ui/field";
+
+import { Input } from "../ui/input";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function PaymentForm({ orderPrice }: { orderPrice: number }) {
   const { setCheckoutProgress, clearCart, cart } = useCartStore();
   const [isLoading, setIsLoading] = useState(false);
 
-  // 1. CRITICAL FIX: Initialize useForm FIRST before any other hooks or calls
   const form = useForm<zOrderSchema>({
     resolver: zodResolver(OrderSchema),
     defaultValues: {
@@ -40,200 +45,230 @@ export default function PaymentForm({ orderPrice }: { orderPrice: number }) {
       lastName: "",
       phone: "",
       wilaya: "",
-      shippingMethod: "desk",
-      shippingCost: 0,
+      shippingMethod: undefined,
+      shippingAddress: "",
+      productsBuyCost: orderPrice,
+      products: [],
     },
     mode: "onChange",
   });
 
-  // 2. Safely setup form watchers AFTER initializing the form instance
-  const watchedWilaya = form.watch("wilaya");
-  const watchedMethod = form.watch("shippingMethod");
+  const selectedWilaya = form.watch("wilaya");
+  const selectedShipingMethod = form.watch("shippingMethod");
 
-  // 3. Sync calculated shipping prices dynamically
-  useEffect(() => {
-    if (watchedWilaya && watchedMethod) {
-      const rateObj = WILAYA_SHIPPING_RATES[watchedWilaya];
-      const cost = rateObj ? rateObj[watchedMethod as "home" | "desk"] : 0;
+  const wilayaData = WILAYA_SHIPPING_RATES[selectedWilaya];
 
-      form.setValue("shippingCost", cost, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  }, [watchedWilaya, watchedMethod, form]);
-
-  // 4. Calculate variables for your live invoice totals
-  const currentShippingCost = form.watch("shippingCost") || 0;
-  
-  // Note: Since orderPrice is coming in as Cents from your Payment wrapper, 
-  // divide by 100 to display standard DA currency context visually
-  const subtotalDA = orderPrice / 100; 
-  const grandTotalDA = subtotalDA + currentShippingCost;
-
-  // 5. Connect next-safe-action execution hook
   const { execute, status } = useAction(createOrder, {
     onSuccess: (data) => {
       setIsLoading(false);
+
       if (data.data?.error) {
-        toast.error(data.data.error , );
+        toast.error(data.data.error, { id: "order-toast" });
       }
+
       if (data.data?.success) {
-        toast.success(data.data.success);
+        toast.success(data.data.success, { id: "order-toast" });
         setCheckoutProgress("confirmation-page");
         clearCart();
       }
     },
+
     onExecute: () => {
       setIsLoading(true);
+      toast.dismiss(); // Dismiss the loading message
       toast.loading("Traitement de votre commande...", { id: "order-toast" });
     },
   });
-
   function onSubmit(values: zOrderSchema) {
     const formattedProducts = cart.map((item) => ({
       productID: item.id,
-      variantID: item.variant.variantID, 
+      variantID: item.variant.variantID,
       quantity: item.variant.quantity,
     }));
 
     execute({
       ...values,
-      total: subtotalDA, // Passes clean product subtotal down to backend
       products: formattedProducts,
       status: "pending",
     });
   }
 
+  useEffect(() => {
+    if (selectedShipingMethod === "desk") {
+      form.setValue("shippingAddress", "");
+    }
+  }, [selectedShipingMethod, form]);
+
+  /* // 3. Sync calculated shipping prices dynamically
+    useEffect(() => {
+      if (selectedWilaya && selectedShipingMethod) {
+        const rateObj = WILAYA_SHIPPING_RATES[selectedWilaya];
+        const cost = rateObj ? rateObj[selectedShipingMethod as "home" | "desk"] : 0;
+  
+        form.setValue("shippingCost", cost, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+    }, [selectedWilaya, selectedShipingMethod, form]); */
+
+  const { isValid, isDirty } = form.formState;
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-left">
-        
-        {/* NOM FIELD */}
-        <FormField
-          control={form.control}
-          name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nom</FormLabel>
-              <FormControl>
-                <Input placeholder="Nom" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Ajoutez vos information de livraison:</CardTitle>
+        </CardHeader>
 
-        {/* PRÉNOM FIELD */}
-        <FormField
-          control={form.control}
-          name="firstName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Prénom</FormLabel>
-              <FormControl>
-                <Input placeholder="Prénom" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom</FormLabel>
+                    <FormControl>
+                      <Input placeholder="" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        {/* TELEPHONE FIELD */}
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Numéro Téléphone</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="0XXXXXXXXX" type="tel" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prénon</FormLabel>
+                    <FormControl>
+                      <Input placeholder="" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        {/* WILAYA SELECT FIELD */}
-        {/* 1. FIXED WILAYA FIELD */}
-<FormField
-  control={form.control}
-  name="wilaya"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Wilaya de livraison</FormLabel>
-      <Select value={field.value} onValueChange={field.onChange}>
-        <FormControl> {/* ✅ ADDED WRAPPER */}
-          <SelectTrigger className="w-full h-11 bg-popover">
-            <SelectValue placeholder="Sélectionnez votre Wilaya" />
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent>
-          {/* ... items ... */}
-        </SelectContent>
-      </Select>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Numéro Telephone</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="000-000-000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-{/* 2. FIXED SHIPPING METHOD FIELD */}
-<FormField
-  control={form.control}
-  name="shippingMethod"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Mode de livraison</FormLabel>
-      <Select value={field.value}
-      onValueChange={(value) => {
-        field.onChange(value);
-    
-        const rate = WILAYA_SHIPPING_RATES[watchedWilaya];
-    
-        if (rate) {
-          form.setValue("shippingCost", rate[value as "home" | "desk"]);
-        }
-      }}>
-        <FormControl> {/* ✅ ADDED WRAPPER */}
-          <SelectTrigger className="w-full h-11 bg-popover">
-            <SelectValue placeholder="Sélectionnez le mode de livraison" />
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent>
-          {/* ... items ... */}
-        </SelectContent>
-      </Select>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-        {/* LIVE INVOICE RECIEPT */}
-        {watchedWilaya && (
-          <div className="p-4 bg-muted/50 rounded-xl space-y-2 text-sm border">
-            <div className="flex justify-between text-muted-foreground">
-              <span>Sous-total:</span>
-              <span>{subtotalDA} DA</span>
-            </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Frais de livraison:</span>
-              <span>{currentShippingCost} DA</span>
-            </div>
-            <hr className="border-dashed" />
-            <div className="flex justify-between font-bold text-base text-foreground">
-              <span>Total final à payer:</span>
-              <span className="text-primary">{grandTotalDA} DA</span>
-            </div>
-          </div>
-        )}
+              <FormField
+                control={form.control}
+                name="wilaya"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Willaya de livraison</FormLabel>
+                    <FormControl>
+                      <Field className="w-full max-w-48">
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selectionnez Willaya" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {Object.entries(WILAYA_SHIPPING_RATES)
+                                .sort(([a], [b]) => Number(a) - Number(b))
+                                .map(([code, wilaya]) => (
+                                  <SelectItem key={code} value={code}>
+                                    {code} - {wilaya.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <Button
-          className="w-full h-11 font-semibold animate-fade-in"
-          type="submit"
-          disabled={status === "executing" || !form.formState.isValid}
-        >
-          {isLoading ? "Traitement..." : "Commandez maintenant"}
-        </Button>
-      </form>
-    </Form>
+              <FormField
+                control={form.control}
+                name="shippingMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mode de livraison</FormLabel>
+                    <FormControl>
+                      <Field className="w-full max-w-48">
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                          disabled={!selectedWilaya}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionnez un mode de livraison" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {wilayaData && (
+                              <>
+                                <SelectItem value="home">
+                                  à domicile — {wilayaData.home} DA
+                                </SelectItem>
+
+                                <SelectItem value="desk">
+                                  Stop Desk — {wilayaData.desk} DA
+                                </SelectItem>
+                              </>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {selectedWilaya && selectedShipingMethod === "home" ? (
+                <FormField
+                  control={form.control}
+                  name="shippingAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Adresse de Livraison</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ajoutez votre Adresse de livraison"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                ""
+              )}
+
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={status === "executing" || !isValid || !isDirty}
+              >
+                Commendez Maintenant
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
