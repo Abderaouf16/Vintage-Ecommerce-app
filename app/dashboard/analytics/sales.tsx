@@ -41,16 +41,10 @@ export default function Sales({ totalOrders }: { totalOrders: TotalOrders[] }) {
             {sliced.map(({ order,id, product, quantity, productVariants }) => (
               <TableRow className="font-medium " key={id}>
                 <TableCell>
-                  {order.user.image && order.user.name ? (
+                  { order.lastName ? (
                     <div className="flex gap-2 w-32 items-center">
-                      <Image
-                        src={order.user.image}
-                        width={25}
-                        height={25}
-                        alt={order.user.name}
-                        className="rounded-full"
-                      />
-                      <p className="text-xs font-medium">{order.user.name}</p>
+                      
+                      <p className="text-xs font-medium">{order.lastName} {order.firstName}</p>
                     </div>
                   ) : (
                     <div className="flex gap-2 items-center justify-center">
