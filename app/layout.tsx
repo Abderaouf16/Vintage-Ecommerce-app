@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import Nav from "@/components/navigation/nav";
+import Footer from '@/components/navigation/footer'
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import {  Roboto } from "next/font/google";
 import Toaster from "@/components/ui/toaster";
@@ -36,6 +37,7 @@ export default function RootLayout({
             <Nav />
             <Toaster />
             {children}
+            <Footer/>
           </ThemeProvider>
         </div>
       </body>
