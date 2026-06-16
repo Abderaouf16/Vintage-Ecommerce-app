@@ -7,7 +7,7 @@ export default async function footer() {
 
   return (
     <footer className="w-full border-t  mt-10">
-      <div className="mx-auto max-w-6xl px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="mx-auto max-w-6xl  py-6 md:px-10 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4 ">
 
         {/* Brand / text */}
         <p className="text-sm text-muted-foreground">
@@ -15,11 +15,11 @@ export default async function footer() {
         </p>
 
         {/* Contact links */}
-        <div className="flex items-center gap-6 text-sm">
+        <div className="  flex items-center justify-center gap-6 text-sm   ">
 
           {/* Phone */}
           <a
-            href="tel:+213600000000"
+            href="tel:0558768495"
             className="flex items-center gap-2 hover:text-primary transition"
           >
             <FaPhone />
