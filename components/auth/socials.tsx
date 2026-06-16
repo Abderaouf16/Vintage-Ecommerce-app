@@ -19,7 +19,7 @@ export default function Socials() {
         <p className="pr-1"> Sign in with Google</p>
         <FcGoogle style={{ width: '18px', height: '18px' }}  />
       </Button>
-      <Button
+      {/* <Button
         className="flex w-full "
         variant={"secondary"}
         onClick={() => signIn("github", {
@@ -27,9 +27,9 @@ export default function Socials() {
           callbackUrl: '/'
         })}
       >
-        <p className="pr-1"> Sign in with Google</p>
+        <p className="pr-1"> Sign in with Github</p>
         <FaGithub style={{ width: '18px', height: '20px' }}  />
-      </Button>
+      </Button> */}
     </div>
   );
 }
