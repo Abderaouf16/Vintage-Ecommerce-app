@@ -3,8 +3,8 @@ import React from "react";
 import { Button } from "../ui/button";
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
-
+/* import { FaGithub } from "react-icons/fa";
+ */
 export default function Socials() {
   return (
     <div className="flex flex-col items-center w-full gap-4 ">
