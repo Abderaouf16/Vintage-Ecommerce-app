@@ -26,20 +26,28 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        
-        <div className="px-6 md:px-12 max-w-8xl m-auto">
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light" 
-            enableSystem
-            disableTransitionOnChange
-          >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* FULL PAGE CONTAINER */}
+          <div className="min-h-screen flex flex-col px-6 md:px-12 max-w-8xl m-auto">
+
             <Nav />
+
             <Toaster />
-            {children}
-            <Footer/>
-          </ThemeProvider>
-        </div>
+
+            {/* MAIN CONTENT PUSHES FOOTER DOWN */}
+            <main className="flex-1">
+              {children}
+            </main>
+
+            <Footer />
+
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
