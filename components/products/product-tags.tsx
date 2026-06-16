@@ -20,12 +20,12 @@ export default function ProductTags() {
 
   return (
     <div className="flex items-center gap-4 justify-center mb-8 flex-wrap">
-      <div className=" mr-16">
+      <div className="  md:mr-16  ">
       <Badge
         onClick={() => setFilter("")}
         className={cn(
           "cursor-pointer bg-gray-700 hover:bg-gray-600 py-2 px-4  hover:opacity-100 transition-all ease-in-out",
-          !tag ? "opacity-100 border-black border-[3px]" : "opacity-40"
+          !tag ? "opacity-100 border-black border-[2px]" : "opacity-40"
         )}
       >
         Tout

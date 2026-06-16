@@ -15,7 +15,7 @@ export default async function footer() {
         </p>
 
         {/* Contact links */}
-        <div className="  flex items-center justify-center gap-6 text-sm   ">
+        <div className="  flex items-center justify-center gap-6 text-sm flex-wrap  ">
 
           {/* Phone */}
           <a
