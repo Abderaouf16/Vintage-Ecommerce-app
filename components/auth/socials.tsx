@@ -11,10 +11,7 @@ export default function Socials() {
       <Button
         className="flex w-full "
         variant={"secondary"}
-        onClick={() => signIn("google",{
-          redirect:false,
-          callbackUrl: '/'
-        })}
+        onClick={() => signIn("google", { callbackUrl: "/" })}
       >
         <p className="pr-1"> Sign in with Google</p>
         <FcGoogle style={{ width: '18px', height: '18px' }}  />
