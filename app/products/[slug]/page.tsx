@@ -13,7 +13,7 @@ import AddCart from "@/components/cart/add-cart";
 
 // func from nextjs to fetch data then render the other static pages
 // goal of the func: Goal: To tell Next.js which pages (slugs) should be pre-rendered at build time.
-export const revalidate = 120
+export const revalidate = 120;
 export async function generateStaticParams() {
   const data = await db.query.productVariants.findMany({
     with: {
@@ -33,7 +33,9 @@ export async function generateStaticParams() {
   return [];
 }
 
-export default async function page(props: { params: Promise<{ slug: string }> }) {
+export default async function page(props: {
+  params: Promise<{ slug: string }>;
+}) {
   const params = await props.params;
   const variant = await db.query.productVariants.findFirst({
     where: eq(productVariants.id, Number(params.slug)),
@@ -50,9 +52,9 @@ export default async function page(props: { params: Promise<{ slug: string }> })
   });
 
   if (variant) {
-    const reviewAvg = getReviewAverage(
+    /* const reviewAvg = getReviewAverage(
       variant?.product.reviews.map((r) => r.rating)
-    );
+    ); */
     return (
       <main>
         <section className="flex flex-col gap-4 lg:flex-row lg:gap-12  pb-32">
@@ -63,16 +65,19 @@ export default async function page(props: { params: Promise<{ slug: string }> })
             <h2 className="  font-bold text-2xl">{variant?.product.title}</h2>
             <div className="flex items-center justify-between">
               <ProductType variants={variant.product.productVariants} />
-              <div className="">
-              <Stars
-                rating={reviewAvg}
-                totalReviews={variant.product.reviews.length}
-              />
-              </div>
+              {/* <div className="">
+                <Stars
+                  rating={reviewAvg}
+                  totalReviews={variant.product.reviews.length}
+                />
+              </div> */}
             </div>
             <Separator className="my-2" />
             <p className=" font-medium text-2xl py-2">
-              {formatPrice(variant.product.price)} <span className=" px- md:text-sm text-xs text-gray-600">(Sans frais de livraison)</span>
+              {formatPrice(variant.product.price)}{" "}
+              <span className=" px- md:text-sm text-xs text-gray-500">
+                (Sans frais de livraison)
+              </span>
             </p>
             <div
               className=" text-secondary-foreground"
@@ -97,11 +102,12 @@ export default async function page(props: { params: Promise<{ slug: string }> })
                 />
               ))}
             </div>
-          <AddCart/>
+            <AddCart />
           </div>
         </section>
-{/*         <Reviews productID={variant.productID} />
- */}      </main>
+        {/*         <Reviews productID={variant.productID} />
+         */}{" "}
+      </main>
     );
   }
 }
