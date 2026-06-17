@@ -14,8 +14,8 @@ const roboto = Roboto({
 
 
 export const metadata: Metadata = {
-  title: "Excellence",
-  description: "Grab the best study utils  ",
+  title: "Vintage Supply DZ ",
+  description: " Vintag Supply DZ est une boutique en ligne spécialisée dans la vente de produits vintage et rétro. Découvrez notre collection unique de vêtements, accessoires et objets de décoration pour un style authentique et intemporel.",
 };
 
 export default function RootLayout({
