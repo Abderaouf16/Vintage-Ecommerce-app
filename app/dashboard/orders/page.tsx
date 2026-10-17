@@ -40,7 +40,6 @@ import { formatDistance, subMinutes } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 export default async function OrdersPage() {
   const user = await auth();
@@ -49,7 +48,7 @@ export default async function OrdersPage() {
   }
 
   const userOrders = await db.query.orders.findMany({
-    where: eq(orders.userID, user?.user.id),
+    /*where: eq(orders.userID, user?.user.id),*/
     with: {
       orderProduct: {
         with: {
@@ -60,7 +59,7 @@ export default async function OrdersPage() {
       },
     },
   });
-
+  console.log(userOrders);
   return (
     <div>
       <Card>
