@@ -14,9 +14,9 @@ export default async function nav() {
   const session = await auth();
 
   return (
-    <header className="py-12">
+    <header className="py-7 mb-4">
       <nav>
-        <ul className="flex justify-between items-center gap-1 sm:gap-2 md:gap-6">
+        <ul className="flex justify-between items-center gap-1 sm:gap-2 md:gap-3">
           <li className="flex flex-1 ">
            <Logo/>
           </li>

@@ -80,7 +80,7 @@ export default async function OrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {userOrders.map((order) => (
+              {[...userOrders].reverse().map((order) => (
                 <TableRow key={order.id}>
                   <TableCell> {order.id} </TableCell>
                   <TableCell> {order.total} DA</TableCell>
